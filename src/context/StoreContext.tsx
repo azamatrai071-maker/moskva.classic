@@ -178,7 +178,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       showToast('Авторизация успешна. Добро пожаловать в админку!', 'success');
       return true;
     }
-    showToast('Неверный логин или пароль. Попробуйте admin / admin123', 'error');
+    showToast('Неверный логин или пароль', 'error');
     return false;
   };
 

@@ -19,6 +19,7 @@ import {
   Sparkles,
   Search,
   Eye,
+  EyeOff,
   Tag,
   Lock,
   LogOut,
@@ -63,6 +64,8 @@ export const AdminPanel: React.FC = () => {
   // Login form state
   const [loginInput, setLoginInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCredentialsHint, setShowCredentialsHint] = useState(false);
   const [loginError, setLoginError] = useState('');
 
   // Admin tabs: 'add' is prominent
@@ -101,7 +104,7 @@ export const AdminPanel: React.FC = () => {
     setLoginError('');
     const success = loginAdmin(loginInput, passwordInput);
     if (!success) {
-      setLoginError('Неверный логин или пароль. Используйте admin и admin123');
+      setLoginError('Неверный логин или пароль');
     }
   };
 
@@ -258,22 +261,36 @@ export const AdminPanel: React.FC = () => {
             </p>
           </div>
 
-          {/* Quick 1-click test credential helper */}
-          <div className="bg-[#FAF9F6] border border-[#EAE6DF] rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <Key className="w-4 h-4 text-[#8C7B65] shrink-0" />
-              <div className="text-xs">
-                <div className="font-semibold text-gray-800">Тестовый доступ:</div>
-                <div className="text-gray-500 font-mono text-[11px]">логин: <strong>admin</strong> / пароль: <strong>admin123</strong></div>
-              </div>
-            </div>
+          {/* Collapsible test credential helper (hidden by default to keep fields & screen clean) */}
+          <div className="bg-[#FAF9F6] border border-[#EAE6DF] rounded-2xl p-3.5 text-xs">
             <button
               type="button"
-              onClick={fillTestCredentials}
-              className="px-3 py-1.5 rounded-lg bg-white border border-[#DDD8CF] hover:border-[#8C7B65] text-[#8C7B65] text-xs font-semibold shadow-2xs transition-colors shrink-0"
+              onClick={() => setShowCredentialsHint(!showCredentialsHint)}
+              className="w-full flex items-center justify-between text-left text-gray-600 hover:text-gray-900 transition-colors py-0.5"
             >
-              Заполнить в 1 клик
+              <div className="flex items-center gap-2">
+                <Key className="w-3.5 h-3.5 text-[#8C7B65] shrink-0" />
+                <span className="font-medium text-xs text-gray-700">Подсказка для тестового входа</span>
+              </div>
+              <span className="text-[11px] text-[#8C7B65] font-semibold hover:underline">
+                {showCredentialsHint ? 'Скрыть' : 'Показать'}
+              </span>
             </button>
+            {showCredentialsHint && (
+              <div className="mt-3 pt-3 border-t border-[#EAE6DF] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="text-gray-600 text-[11px] space-y-1 font-mono">
+                  <div>логин: <span className="font-semibold text-gray-900">admin</span></div>
+                  <div>пароль: <span className="font-semibold text-gray-900">admin123</span></div>
+                </div>
+                <button
+                  type="button"
+                  onClick={fillTestCredentials}
+                  className="px-3 py-1.5 rounded-lg bg-white border border-[#DDD8CF] hover:border-[#8C7B65] text-[#8C7B65] text-xs font-semibold shadow-2xs transition-colors shrink-0"
+                >
+                  Заполнить данные
+                </button>
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleLoginSubmit} className="space-y-4">
@@ -290,7 +307,8 @@ export const AdminPanel: React.FC = () => {
                 type="text"
                 value={loginInput}
                 onChange={(e) => setLoginInput(e.target.value)}
-                placeholder="admin"
+                placeholder="Введите логин"
+                autoComplete="username"
                 className="w-full px-4 py-3 rounded-xl border border-[#DDD8CF] focus:outline-none focus:border-[#8C7B65] text-sm bg-white"
                 required
               />
@@ -298,14 +316,26 @@ export const AdminPanel: React.FC = () => {
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-gray-700">Пароль</label>
-              <input
-                type="password"
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                placeholder="admin123"
-                className="w-full px-4 py-3 rounded-xl border border-[#DDD8CF] focus:outline-none focus:border-[#8C7B65] text-sm bg-white"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="Введите пароль"
+                  autoComplete="current-password"
+                  className="w-full pl-4 pr-11 py-3 rounded-xl border border-[#DDD8CF] focus:outline-none focus:border-[#8C7B65] text-sm bg-white"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1.5 rounded-lg transition-colors focus:outline-none"
+                  title={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+                  aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <button
@@ -360,7 +390,7 @@ export const AdminPanel: React.FC = () => {
               Управление ателье
             </h1>
             <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
-              Вход выполнен (admin)
+              Администратор
             </span>
           </div>
         </div>
